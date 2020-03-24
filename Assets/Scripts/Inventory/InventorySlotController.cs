@@ -29,10 +29,9 @@ public class InventorySlotController : MonoBehaviour {
     // 有Item拖拽进来slot
     private void OnDragItemIntoSlot(InventoryItemController item)
     {
-        if (item.GetData().DragContext != ItemDragContextEnum.Inventory) return;
-
         this.SetData(item);
         item.SetIndex(this.index);
+        item.SetData(ItemDragContextEnum.Inventory);
     }
 
     // 有Item拖拽出去slot

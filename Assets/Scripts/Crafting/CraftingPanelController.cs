@@ -83,16 +83,18 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
         this.currentContent = data;
 
         this.ResetSlotContents();
-        this.ResetMaterials();
+        this.ResetAllItems();
         this.CreateAllSlotContents(data);
 	}
 
     // 根据合成id生成合成图谱.
     private void CreateAllSlotContents(CraftingContentsItem data)
     {
-        var mapItem = this.GetCurMapItem();
+        int id = this.currentContent.ItemID;
+        var mapItem = this.m_CraftingPanelModel.GetItemById(id);
+        this.m_CraftingRightController.SetData(mapItem);
+ 
         if (mapItem == null) return;
-	
 		for (int i = 0; i < slotNum; i ++){
             var item = this.slotList[i];
             int materialID = mapItem.GetMaterialsID(i);
@@ -104,9 +106,6 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
                 item.SetData(sprite);
 			}
 		}
-
-        // 显示合成最终物品
-        this.m_CraftingRightController.SetData(mapItem.MapName);
     }
 
 	// 重置合成图谱
@@ -116,14 +115,24 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
             this.GetSlot(i).ResetSelf();
 	}
 
-    // 将所有合成材料回收到背包
-    private void ResetMaterials()
+    // 回收所有物品到背包
+    private void ResetAllItems()
     {
-        if (this.itemList.Count == 0) return; // 若没有物品就不处理.
+        // 将所有合成材料回收到背包
+        if (this.itemList.Count > 0)
+        {
+            var goList = this.itemList;
+            this.itemList = new List<InventoryItemController>();
+            SendMessageUpwards("ResetItemsToInventory", goList);
+        }
 
-        var goList = this.itemList;
-        this.itemList = new List<InventoryItemController>();
-        SendMessageUpwards("ResetMaterialsToInventory", goList);
+        // 将生成的物品回收到背包
+        var item = this.m_CraftingRightController.GetProduct();
+        if (item != null)
+        {
+            this.m_CraftingRightController.ResetData();
+            SendMessageUpwards("ResetItemToInventory", item);
+        }
     }
 
     // 点击处理.(选项卡切换)
@@ -160,7 +169,8 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
         }
         
         this.itemList.Add(item);
-        this.m_CraftingRightController.MaterialCountUpdateEvent.Fire(this.GetCount() >= this.GetCurMapItem().MaterialsCount);
+        var mapItem = this.m_CraftingRightController.GetData();
+        this.m_CraftingRightController.MaterialCountUpdateEvent.Fire(this.GetCount() >= mapItem.MaterialsCount);
     }
 
     // Item离开Slot
@@ -178,7 +188,7 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
     // 获取空slot位置, expectIndex 期望放在哪个slot
     private int GetEmptyIndex(int goItemID, int expectIndex = -1)
     {
-        var mapItem = this.GetCurMapItem();
+        var mapItem = this.m_CraftingRightController.GetData();
         var mapStr = mapItem.MapContentsToChar();
 
         // 标记所有已放入slot的为"0"
@@ -207,6 +217,7 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
     {
         var data = this.currentContent;
         int id = data.ItemID;
+
         return this.m_CraftingPanelModel.GetItemById(id);
     }
 
@@ -219,7 +230,7 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
         if (data.DragContext == ItemDragContextEnum.Inventory) return;
 
         int materialID = data.ItemId;
-        var mapItem = this.GetCurMapItem();
+        var mapItem = this.m_CraftingRightController.GetData();
 
         int need = mapItem.GetNeedCount(materialID);
         int has = this.GetCount(materialID);
@@ -262,7 +273,7 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
     // 单个合成处理.
     private void Craft()
     {
-        var mapItem = this.GetCurMapItem();
+        var mapItem = this.m_CraftingRightController.GetData();
         int has = this.GetCount();
         int need = mapItem.MaterialsCount;
 
@@ -273,7 +284,13 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
         }
 
         // 生产产品
-        this.m_CraftingRightController.MakeGoodItem();
+        var product = this.m_CraftingRightController.GetProduct();
+        if (product == null) this.m_CraftingRightController.MakeGoodItem();
+        else {
+            var data = product.GetData();
+            data.ItemNum++;
+            product.SetData(data.DragContext);
+        }
 
         // clean
         List<InventoryItemController> tmp = new List<InventoryItemController>();
@@ -289,14 +306,13 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
         }
 
         this.RunOutOfMaterials(tmp);
-        has -= need;
-        this.m_CraftingRightController.MaterialCountUpdateEvent.Fire(has >= need);
+        this.m_CraftingRightController.MaterialCountUpdateEvent.Fire(this.GetCount() >= need);
     }
 
     // 批量合成
     private void CraftAll()
     {
-        var mapItem = this.GetCurMapItem();
+        var mapItem = this.m_CraftingRightController.GetData();
         int has = this.GetCount();
         int need = mapItem.MaterialsCount;
 
@@ -307,23 +323,22 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
         }
 
         // 计算生产次数
-        int times = 0x3f3f3f3f;
+        int makeNum = 0x3f3f3f3f;
         foreach (var item in this.itemList)
         {
             var data = item.GetData();
-            times = Mathf.Min(times, data.ItemNum);
+            makeNum = Mathf.Min(makeNum, data.ItemNum);
         }
 
         // 生产产品
-        int n = times;
-        while (n -- > 0) this.m_CraftingRightController.MakeGoodItem();
+        this.m_CraftingRightController.MakeGoodItem(makeNum);
 
         // clean
         List<InventoryItemController> tmp = new List<InventoryItemController>();
         foreach (var item in this.itemList)
         {
             var data = item.GetData();
-            data.ItemNum -= times;
+            data.ItemNum -= makeNum;
             if (data.ItemNum <= 0) {
                 tmp.Add(item);
             } else {

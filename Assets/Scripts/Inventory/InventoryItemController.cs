@@ -15,18 +15,18 @@ public class InventoryItemController : MonoBehaviour, IBeginDragHandler, IDragHa
 	private Image m_Image;
     private RectTransform m_ImageTrans;
 
-    private int index = -1;
-    private bool isDraging = false;
+    private Transform last_Parent;  // 上一个parent
+    private int index = -1;         // 处于slot的下标
+    private bool isDraging = false; // 是否在拖拽中
 
-    private Transform last_Parent; // 上一个parent
 
     void Awake ()
     {
 		m_Transform = this.GetComponent<RectTransform>();
         m_CanvasGroup = this.GetComponent<CanvasGroup>();
-        m_ImageTrans = UtilsUI.GetComponent<RectTransform>(this.m_Transform, "Icon");
-        m_Image = UtilsUI.GetComponent<Image>(this.m_ImageTrans);
-        m_Text = UtilsUI.GetComponent<Text>(this.m_ImageTrans, "Num");
+        m_ImageTrans = UtilsUI.GetComponent<RectTransform>(m_Transform, "Icon");
+        m_Image = UtilsUI.GetComponent<Image>(m_ImageTrans);
+        m_Text = UtilsUI.GetComponent<Text>(m_ImageTrans, "Num");
 	}
 
     void Update()
@@ -47,6 +47,7 @@ public class InventoryItemController : MonoBehaviour, IBeginDragHandler, IDragHa
         return res;
     }
 
+    // 第一次初始化
     public void InitData(int index, InventoryItem data)
     {
         this.vo = data;
@@ -69,18 +70,25 @@ public class InventoryItemController : MonoBehaviour, IBeginDragHandler, IDragHa
     public void SetData(ItemDragContextEnum goDragCtx = ItemDragContextEnum.None)
     {
         this.vo.DragContext = goDragCtx;
-        string name = this.vo.ItemName;
-        int num = this.vo.ItemNum;
 
+        int num = this.vo.ItemNum;
         this.m_Text.text = num > 1 ? num.ToString() : "";
 
-        string spriteName = "Item/" + name;
-        this.m_Image.sprite = Resources.Load<Sprite>(spriteName); // 物品Item比较多, 使用冷加载
+        // 第一次加载
+        if (index == -1)
+        {
+            string name = this.vo.ItemName;
+            string spriteName = "Item/" + name;
+            this.m_Image.sprite = Resources.Load<Sprite>(spriteName); // 物品Item比较多, 使用冷加载
+        }
 
         if (goDragCtx == ItemDragContextEnum.Crafting)
-            UtilsUI.SetWidthAndHeight(this.m_ImageTrans, 70f, 62f);
-        else
-            UtilsUI.SetWidthAndHeight(this.m_ImageTrans, 85f, 85f);
+            UtilsUI.SetWidthAndHeight(this.m_ImageTrans, 70, 62);
+        else if (goDragCtx == ItemDragContextEnum.Inventory || goDragCtx == ItemDragContextEnum.ToolBar)
+            UtilsUI.SetWidthAndHeight(this.m_ImageTrans, 85, 85);
+        else if (goDragCtx == ItemDragContextEnum.Crafted)
+            UtilsUI.SetWidthAndHeight(this.m_ImageTrans, 110, 110);
+
     }
 
     // 设置parent
@@ -124,7 +132,12 @@ public class InventoryItemController : MonoBehaviour, IBeginDragHandler, IDragHa
         else if (other.tag == "InventorySlot")
         {
             this.SetSlotParent(other.transform);
-            this.SetData(ItemDragContextEnum.Inventory);
+        }
+
+        // 拖拽到工具栏空Slot位置
+        else if (other.tag == "ToolBarSlot")
+        {
+            this.SetSlotParent(other.transform);
         }
 
         // 拖拽到背包Item位置
@@ -139,8 +152,8 @@ public class InventoryItemController : MonoBehaviour, IBeginDragHandler, IDragHa
                 return;
             }
 
-            // [特判]若不在背包内不允许交换位置
-            else if (this.vo.DragContext != ItemDragContextEnum.Inventory || otherItem.vo.DragContext != ItemDragContextEnum.Inventory)
+            // 不允许交换位置的情况
+            else if (!this.vo.CheckSwap(otherItem.vo))
             {
                 this.SetSlotParent(this.last_Parent);
                 this.ResetSelf();
@@ -160,7 +173,6 @@ public class InventoryItemController : MonoBehaviour, IBeginDragHandler, IDragHa
         else if (other.tag == "CraftingSlot" && other.GetComponent<CraftingSlotController>().CheckCanReceive(this.vo.ItemId))
         {
             this.SetSlotParent(other.transform);
-            this.SetData(ItemDragContextEnum.Crafting);
         }
 
         // 其余情况
@@ -178,22 +190,16 @@ public class InventoryItemController : MonoBehaviour, IBeginDragHandler, IDragHa
     private void BreakMaterials()
     {
         var data = this.vo;
-        int newNum = data.ItemNum / 2;
+        if (!data.CheckBreak()) return;
 
-        if (newNum < 1)
-        {
-            UtilsBase.ddd("not break any more. curNum =" + data.ItemNum);
-            return; // 如果不能继续拆
-        }
-        EventManager.Instance.Fire(EventName.BreakMaterials, this, newNum);
+        EventManager.Instance.Fire(EventName.BreakMaterials, this, data.ItemNum / 2);
     }
 
     // 合并同类合成材料.
     private void MergeMaterials(InventoryItemController other)
     {
         var data = this.vo;
-        int newNum = data.ItemNum + other.vo.ItemNum;
-        other.vo.ItemNum = newNum;
+        other.vo.ItemNum = data.ItemNum + other.vo.ItemNum;
         other.index = Mathf.Max(this.index, other.index);
         other.SetData(other.vo.DragContext);
         GameObject.Destroy(this.gameObject);

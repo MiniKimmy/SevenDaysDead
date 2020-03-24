@@ -15,6 +15,7 @@ public class InventoryPanelController : BaseController<InventoryPanelController>
     public override void Start ()
     {
         base.Start();
+
         this.m_InventoryPanelView = (InventoryPanelView)this.View;
         this.m_InventoryPanelModel = (InventoryPanelModel)this.Model;
 
@@ -115,10 +116,12 @@ public class InventoryPanelController : BaseController<InventoryPanelController>
         return -1;
     }
 
-    // 回收所有的合成材料到背包
-    private void ResetMaterialsToInventory(List<InventoryItemController> goList)
+    // 往背包回收多个物品
+    private void ResetItemsToInventory(List<InventoryItemController> goList)
     {
         int n = goList.Count;
+        if (n == 0) return;
+
         InventoryItemController[] tmp = new InventoryItemController[n];
 
         // 合并同种材料再放回背包的同类物品上.
@@ -144,25 +147,33 @@ public class InventoryPanelController : BaseController<InventoryPanelController>
         while (-- j >= 0)
         {
             var item = tmp[j];
-            var data = item.GetData();
-            int preIndex = this.GetItem(data.ItemId);
-            int emptyIndex = this.GetEmptyIndex();
-
-            if (preIndex != -1)
-            {
-                var preItem = this.GetSlot(preIndex).GetItem();
-                data.ItemNum += preItem.GetData().ItemNum;
-                GameObject.Destroy(preItem.gameObject);
-                preIndex = Math.Min(preIndex, emptyIndex);
-            }
-            emptyIndex = Math.Max(emptyIndex, preIndex);
-
-            var slot = this.GetSlot(emptyIndex);
-            slot.SetData(item);
-            item.SetData(ItemDragContextEnum.Inventory);
-            item.SetSlotParent(slot.transform);
-            item.ResetSelf();
+            this.ResetItemToInventory(item);
         }
+    }
+
+    // 往背包回收单个物品
+    private void ResetItemToInventory(InventoryItemController item)
+    {
+        if (item == null) return;
+
+        var data = item.GetData();
+        int preIndex = this.GetItem(data.ItemId);
+        int emptyIndex = this.GetEmptyIndex();
+
+        if (preIndex != -1)
+        {
+            var preItem = this.GetSlot(preIndex).GetItem();
+            data.ItemNum += preItem.GetData().ItemNum;
+            GameObject.Destroy(preItem.gameObject);
+            preIndex = Math.Min(preIndex, emptyIndex);
+        }
+
+        emptyIndex = Math.Max(emptyIndex, preIndex);
+        var slot = this.GetSlot(emptyIndex);
+        slot.SetData(item);
+        item.SetData(ItemDragContextEnum.Inventory);
+        item.SetSlotParent(slot.transform);
+        item.ResetSelf();
     }
 
     protected override void InitEventListener()

@@ -49,8 +49,8 @@ public class CraftingSlotController : MonoBehaviour {
     // 有Item拖拽进来slot
     private void OnDragItemIntoSlot(InventoryItemController item)
     {
-        if (item.GetData().DragContext != ItemDragContextEnum.Crafting) return;
         item.SetIndex(this.index);
+        item.SetData(ItemDragContextEnum.Crafting);
     }
 
     public CraftingMapItem GetData()

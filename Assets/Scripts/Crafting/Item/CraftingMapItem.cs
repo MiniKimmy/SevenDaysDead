@@ -1,48 +1,24 @@
 ﻿using System.Collections.Generic;
+
 /// 数据实体类(合成图谱)
 public class CraftingMapItem
 {
-	private int mapId;           // 图谱id
-	public int MapId
-	{
-		get { return mapId; }
-		set { mapId = value; }
-	}
+	private int    mapId;           // 图谱id
+	private string mapName;         // 图谱名称
+	private string mapContents;     // 图谱图案
+    private int    materialsCount;  // 图谱材料数量
 
-	private string mapName;      // 图谱名称
-	public string MapName
-	{
-		get { return mapName; }
-		set { mapName = value; }
-	}
-	
-	private string mapContents; // 图谱图案
-	public string MapContents
-	{
-		get { return mapContents; }
-		set { mapContents = value; }
-	}
-
-    private int materialsCount; // 图谱材料数量
-    public int MaterialsCount
-    {
-        get { return materialsCount; }
-        set { materialsCount = value; }
-    }
+	public int     MapId { get { return mapId; } set { mapId = value; } }
+	public string  MapName { get { return mapName; } set { mapName = value; } }
+	public string  MapContents { get { return mapContents; } set { mapContents = value; } }
+    public int     MaterialsCount { get { return materialsCount; } set { materialsCount = value; } }
 
     private Dictionary<int, int> materialCount = null;  // <图谱材料id, 所需合成数量>
 
     public CraftingMapItem() {}
-	//public CraftingMapItem(int mapId, string mapContents, string mapName, int materialsCount)
-	//{
-	//	this.mapId = mapId;
-	//	this.mapContents = mapContents;
-	//	this.mapName = mapName;
- //       this.materialsCount = materialsCount;
- //   }
 
-	// 格式:"0,1,0,2,0,1,0,1,3"
-	public int GetMaterialsID(int index)
+    // 格式:"0,1,0,2,0,1,0,1,3"
+    public int GetMaterialsID(int index)
 	{
 		return (int)this.mapContents[index * 2] - 48;
 	}
@@ -81,4 +57,5 @@ public class CraftingMapItem
     {
 		return string.Format("id:{0}, mapName:{1}, map:{2}, count:{3}", this.mapId, this.mapName, this.mapContents, this.materialsCount);
 	}
+
 }

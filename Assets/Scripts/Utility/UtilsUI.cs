@@ -42,6 +42,12 @@ public sealed class UtilsUI  {
         rect.sizeDelta = new Vector2(width, height);
     }
 
+    // setWidthAndHeight
+    public static void SetWidthAndHeight(Transform t, float width, float height)
+    {
+        SetWidthAndHeight(t.GetComponent<RectTransform>(), width, height);
+    }
+
     // find
     public static T GetComponent<T>(Transform t, string path = "") where T : class
     {

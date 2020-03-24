@@ -2,7 +2,9 @@
 
 // 拖拽来源
 public enum ItemDragContextEnum {
-    None = 0,
+    None      = 0,
     Inventory = 1,
-    Crafting = 2,
+    Crafting  = 2,
+    Crafted   = 3, 
+    ToolBar   = 4,
 }

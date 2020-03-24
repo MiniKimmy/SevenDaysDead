@@ -10,4 +10,7 @@ public sealed class GUIName {
     // Inventory
     public const string InventoryItem       = "InventoryItem";
     public const string InventorySlot       = "InventorySlot";
+
+    // ToolBar
+    public const string ToolBarSlot         = "ToolBarSlot";
 }

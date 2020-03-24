@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// 所有资源加载都在View, 子物体不涉及加载.
 public abstract class BaseView : MonoBehaviour {
 
     protected Transform m_Transform;
