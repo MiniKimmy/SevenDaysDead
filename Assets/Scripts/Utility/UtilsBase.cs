@@ -114,6 +114,14 @@ public sealed class UtilsBase {
         return string.Format("<color=#{0}>{1}</color>", color, T18N(str));
     }
 
+    // 16进制颜色转Color
+    public static Color Hex2Color(string color)
+    {
+        Color res;
+        ColorUtility.TryParseHtmlString(string.Format("#{0}", color), out res);
+        return res;
+    }
+
     // 中文规范化 tmp
     public static string T18N(string str)
     {

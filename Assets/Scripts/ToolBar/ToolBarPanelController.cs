@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +8,8 @@ public class ToolBarPanelController : BaseController<ToolBarPanelController>
     private ToolBarPanelModel m_ToolBarPanelModel;
 
     private const int SLOT_NUM = 8;
+
+    private ToolBarSlotController current = null; // 当前选择的slot
 
     public override void Start()
     {
@@ -30,6 +31,18 @@ public class ToolBarPanelController : BaseController<ToolBarPanelController>
             var item = GameObject.Instantiate<GameObject>(prefab, parent).GetComponent<ToolBarSlotController>();
             item.SetData(i);
         }
+    }
 
+    // 选择slot
+    private void OnItemClick(ToolBarSlotController item)
+    {
+        if (current != null) current.SetSelect(false);
+
+        bool is_active = !(current == null || current != item);
+        if (item.gameObject.activeSelf != is_active)
+        {
+            item.SetSelect(is_active);
+        }
+        current = current != item ? item : null;
     }
 }

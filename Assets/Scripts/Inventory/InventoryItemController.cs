@@ -74,13 +74,9 @@ public class InventoryItemController : MonoBehaviour, IBeginDragHandler, IDragHa
         int num = this.vo.ItemNum;
         this.m_Text.text = num > 1 ? num.ToString() : "";
 
-        // 第一次加载
-        if (index == -1)
-        {
-            string name = this.vo.ItemName;
-            string spriteName = "Item/" + name;
-            this.m_Image.sprite = Resources.Load<Sprite>(spriteName); // 物品Item比较多, 使用冷加载
-        }
+        string name = this.vo.ItemName;
+        string spriteName = "Item/" + name;
+        this.m_Image.sprite = Resources.Load<Sprite>(spriteName); // 物品Item比较多, 使用冷加载
 
         if (goDragCtx == ItemDragContextEnum.Crafting)
             UtilsUI.SetWidthAndHeight(this.m_ImageTrans, 70, 62);

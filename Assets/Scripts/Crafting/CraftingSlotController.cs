@@ -53,6 +53,12 @@ public class CraftingSlotController : MonoBehaviour {
         item.SetData(ItemDragContextEnum.Crafting);
     }
 
+    // 当有物体拖拽离开.
+    private void OnDragItemOutSlot(InventoryItemController item)
+    {
+        // 不作处理.
+    }
+
     public CraftingMapItem GetData()
     {
         return this.vo;
