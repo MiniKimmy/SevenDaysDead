@@ -3,14 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InventoryPanelController : BaseController<InventoryPanelController> {
-
+[AutoSingleton(true, "InventoryPanel")]
+public class InventoryPanelController : BaseController<InventoryPanelController>, IUIPanelShowAndHide
+{
 	private InventoryPanelView m_InventoryPanelView;
 	private InventoryPanelModel m_InventoryPanelModel;
 
-    private const int slotNum = 27;
+    private const int SLOT_NUM = 27;
 
-	private InventorySlotController[] slotList = new InventorySlotController[slotNum];
+	private InventorySlotController[] slotList = new InventorySlotController[SLOT_NUM];
 
     public override void Start ()
     {
@@ -26,7 +27,7 @@ public class InventoryPanelController : BaseController<InventoryPanelController>
     // 创建所有物品槽Slot
 	private void CreateAllSlots()
     {
-		for (int i = 0; i < slotNum; i ++)
+		for (int i = 0; i < SLOT_NUM; i ++)
 		{
             var prefab = this.m_InventoryPanelView.GetPrefabByDict(GUIName.InventorySlot);
             var parent = this.m_InventoryPanelView.GridTransform;
@@ -57,7 +58,7 @@ public class InventoryPanelController : BaseController<InventoryPanelController>
     // 找到有空位置的下标
     private int GetEmptyIndex(int exceptIndex = -1)
     {
-        for (int i = 0; i < slotNum; i++)
+        for (int i = 0; i < SLOT_NUM; i++)
         {
             var slot = this.GetSlot(i);
             if (slot.IsEmptySlot() && i != exceptIndex)
@@ -106,7 +107,7 @@ public class InventoryPanelController : BaseController<InventoryPanelController>
     // 找到第一个匹配goItemId的slot下标
     public int GetItem(int goItemId)
     {
-        for (int i = 0; i < slotNum; i++)
+        for (int i = 0; i < SLOT_NUM; i++)
         {
             var item = this.GetSlot(i).GetItem();
             if (item != null && item.GetData().ItemId == goItemId)
@@ -184,5 +185,15 @@ public class InventoryPanelController : BaseController<InventoryPanelController>
     protected override void RemoveEventListener()
     {
         EventManager.Instance.RemoveListener(EventName.BreakMaterials, this.BreakMaterialsEvent);
+    }
+
+    public void UIPanelShow()
+    {
+        this.OnShow();
+    }
+
+    public void UIPanelHide()
+    {
+        this.OnHide();
     }
 }

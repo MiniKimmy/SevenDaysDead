@@ -101,7 +101,7 @@ public class InventoryItemController : MonoBehaviour, IBeginDragHandler, IDragHa
 
         SendMessageUpwards("OnDragItemOutSlot", this);
 
-        this.SetSlotParent(CameraManager.Instance.CanvasTran);
+        this.SetSlotParent(CameraManager.Instance.CanvasUITran);
         this.m_CanvasGroup.blocksRaycasts = false;
     }
 

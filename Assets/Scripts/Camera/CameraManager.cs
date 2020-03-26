@@ -14,17 +14,18 @@ public class CameraManager : MonoBehaviour {
         }
     }
 
-    private Transform canvasTran;
-
-    public Transform CanvasTran
+    private Transform canvasUITran = null;
+    public Transform CanvasUITran
     {
-        get { return canvasTran; }
-        set { canvasTran = value; }
+        get {
+            if (canvasUITran == null) canvasUITran = GameObject.Find("Canvas").transform;
+            return canvasUITran;
+        }
     }
 
     void Awake()
     {
         instance = this;
-        canvasTran = GameObject.Find("Canvas").transform;
+        canvasUITran = GameObject.Find("Canvas").transform;
     }
 }

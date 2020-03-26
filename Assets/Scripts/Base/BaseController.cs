@@ -61,7 +61,6 @@ public class BaseController<T> : MonoBehaviour where T : MonoBehaviour
         this.InitEventListener();
     }
 
-
     // 添加事件监听
     protected virtual void InitEventListener() { }
 
@@ -91,66 +90,61 @@ public class BaseController<T> : MonoBehaviour where T : MonoBehaviour
 
             lock (_lock)
             {
-                if (_instance == null)
-                {
-                    _instance = (T)FindObjectOfType(_type);
-                    if (FindObjectsOfType(_type).Length > 1)
+                if (null != _instance) return _instance;
+
+                _instance = (T)FindObjectOfType(_type);
+                if (FindObjectsOfType(_type).Length > 1) {
+                    Debug.LogErrorFormat("[Singleton]类型【{0}】存在多个实例.", _type.Name);
+                    return _instance;
+                }
+
+                if (null == _instance) {
+                    object[] customAttributes = _type.GetCustomAttributes(typeof(AutoSingletonAttribute), true);
+                    AutoSingletonAttribute autoAttribute = (customAttributes.Length > 0) ? (AutoSingletonAttribute)customAttributes[0] : null;
+                    if (null == autoAttribute || !autoAttribute.autoCreate)
                     {
-                        Debug.LogErrorFormat("[Singleton]类型【{0}】存在多个实例.", _type.Name);
-                        return _instance;
+                        Debug.LogWarningFormat("[Singleton]欲访问单例【{0}】不存在且设置了非自动创建~", _type.Name);
+                        return (T)((object)null);
                     }
-                    if (_instance == null)
+
+                    // Resources加载res
+                    GameObject go = null;
+                    if (string.IsNullOrEmpty(autoAttribute.resPath)) 
                     {
-                        object[] customAttributes = _type.GetCustomAttributes(typeof(AutoSingletonAttribute), true);
-                        AutoSingletonAttribute autoAttribute = (customAttributes.Length > 0) ? (AutoSingletonAttribute)customAttributes[0] : null;
-                        if (null == autoAttribute || !autoAttribute.autoCreate)
-                        {
-                            Debug.LogWarningFormat("[Singleton]欲访问单例【{0}】不存在且设置了非自动创建~", _type.Name);
+                        go = new GameObject(_type.Name);
+                        _instance = go.AddComponent<T>();
+                    } else {
+                        go = Resources.Load<GameObject>(autoAttribute.resPath);
+                        if (null != go) {
+                            go = GameObject.Instantiate(go, CameraManager.Instance.CanvasUITran);
+                        } else {
+                            Debug.LogErrorFormat("[Singleton]类型【{0}】ResPath设置的路径不对【{1}】", _type.Name, autoAttribute.resPath);
                             return (T)((object)null);
                         }
-
-                        /* // Resources加载单例obj
-                        GameObject go = null;
-                        if (string.IsNullOrEmpty(autoAttribute.resPath)) 
-                        {
-                            go = new GameObject(_type.Name);
-                            _instance = go.AddComponent<T>();
+                        _instance = go.GetComponent<T>();
+                        if (null == _instance) {
+                            Debug.LogErrorFormat("[Singleton]指定预制体未挂载该脚本【{0}】，ResPath【{1}】", _type.Name, autoAttribute.resPath);
                         }
-                        else
-                        {
-                            go = Resources.Load<GameObject>(autoAttribute.resPath);
-                            if (null != go)
-                            {
-                                go = GameObject.Instantiate(go);
-                            }
-                            else
-                            {
-                                Debug.LogErrorFormat("[Singleton]类型【{0}】ResPath设置了错误的路径【{1}】", _type.Name, autoAttribute.resPath);
-                                return (T)((object)null);
-                            }
-                            _instance = go.GetComponent<T>();
-                            if (null == _instance)
-                            {
-                                Debug.LogErrorFormat("[Singleton]指定预制体未挂载该脚本【{0}】，ResPath【{1}】", _type.Name, autoAttribute.resPath);
-                            }
-                        }
-                        */
                     }
                 }
 
                 return _instance;
             }
+
         }
     }
 
+    // 销毁inst
     public static void DestroyInstance()
     {
-        if (_instance != null) GameObject.Destroy(_instance.gameObject);
+        if (_instance != null)
+            GameObject.Destroy(_instance.gameObject);
+ 
         _destroyed = true;
         _instance = null;
     }
 
-    // 清除lock
+    // 清除lock, inst
     public static void ClearDestroy()
     {
         DestroyInstance();

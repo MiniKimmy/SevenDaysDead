@@ -60,4 +60,15 @@ public sealed class UtilsUI  {
         t.Find(path).GetComponent<Button>().onClick.RemoveAllListeners();
         t.Find(path).GetComponent<Button>().onClick.AddListener(call);
     }
+
+    // ui打开/关闭
+    public static void SetUIActive(IUIPanelShowAndHide ui, bool active)
+    {
+        if (active)
+        {
+            ui.UIPanelShow();
+        } else {
+            ui.UIPanelHide();
+        }
+    }
 }

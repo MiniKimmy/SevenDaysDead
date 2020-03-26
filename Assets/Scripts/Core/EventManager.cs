@@ -43,6 +43,7 @@ public class EventManager {
     public void RemoveListener(string eventName, MAction func)
     {
         var vo = (EventVo)this.hash[eventName];
+        if (vo == null) return;
         vo.Remove(func);
 
         if (vo.IsEmpty())

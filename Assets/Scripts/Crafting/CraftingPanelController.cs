@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CraftingPanelController : BaseController<CraftingPanelController> {
+[AutoSingleton(true, "CraftingPanel")]
+public class CraftingPanelController : BaseController<CraftingPanelController>, IUIPanelShowAndHide {
 
 	private CraftingPanelView m_CraftingPanelView;
 	private CraftingPanelModel m_CraftingPanelModel;
 
-	private static int tabsNum = 2;
-	private static int slotNum = 25;
+	private static int tabsNum = 0;
+	private const int SLOT_NUM = 25;
 
 	private List<CraftingTabsItemController> tabsList = new List<CraftingTabsItemController>();   // 合成列表所有选项卡
 	private List<CraftingContentController> contentsList = new List<CraftingContentController>(); // 合成列表所有正文内容
-	private List<CraftingSlotController> slotList = new List<CraftingSlotController>();          // 合成图谱的所有slot槽
+	private List<CraftingSlotController> slotList = new List<CraftingSlotController>();           // 合成图谱的所有slot槽
     private List<InventoryItemController> itemList = new List<InventoryItemController>();         // 合成图谱里的所有合成材料
 
 	private int currentTabIndex = -1;                          // 当前选项卡下标
@@ -31,19 +32,21 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
 		this.CreateAllContents();
 		this.CreateAllSlots();
 
-
 		this.ResetTabsAndContents(0); // 默认选择第一个选项卡.
 	}
 
 	// 创建所有选项卡
 	private void CreateAllTabs()
     {
-		for (int i = 0; i < tabsNum; i ++ )
+        var tab_nams = this.m_CraftingPanelModel.GetTabsIconName();
+        tabsNum = tab_nams.Length;
+
+        for (int i = 0; i < tabsNum; i ++ )
         {
             var prefab = this.m_CraftingPanelView.GetPrefabByDict(GUIName.CraftingTabsItem);
             var parent = this.m_CraftingPanelView.Tabs_Transform;
             var item = GameObject.Instantiate<GameObject>(prefab, parent).GetComponent<CraftingTabsItemController>();
-            Sprite sprite = UtilsBase.ByNameGetAsset<Sprite>(this.m_CraftingPanelModel.GetTabsIconName()[i], this.m_CraftingPanelView.TabIconDic);
+            Sprite sprite = UtilsBase.ByNameGetAsset<Sprite>(tab_nams[i], this.m_CraftingPanelView.TabIconDic);
 			item.InitItem(i, sprite);
 			tabsList.Add(item);
 		}
@@ -68,7 +71,7 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
 	// 创建所有合成槽
 	private void CreateAllSlots()
     {
-		for (int i = 0; i < slotNum; i ++)
+		for (int i = 0; i < SLOT_NUM; i ++)
 		{
             var prefab = this.m_CraftingPanelView.GetPrefabByDict(GUIName.CraftingSlot);
             var parent = this.m_CraftingPanelView.Center_Transform;
@@ -95,7 +98,7 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
         this.m_CraftingRightController.SetData(mapItem);
  
         if (mapItem == null) return;
-		for (int i = 0; i < slotNum; i ++){
+		for (int i = 0; i < SLOT_NUM; i ++){
             var item = this.slotList[i];
             int materialID = mapItem.GetMaterialsID(i);
             item.InitData(i, mapItem);
@@ -111,7 +114,7 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
 	// 重置合成图谱
 	private void ResetSlotContents()
     {
-		for (int i = 0; i < slotNum; i ++)
+		for (int i = 0; i < SLOT_NUM; i ++)
             this.GetSlot(i).ResetSelf();
 	}
 
@@ -203,7 +206,7 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
 
         // 寻找第一个空slot可放入的下标
         string itemID = goItemID.ToString();
-        for (int i = 0; i < slotNum; i++)
+        for (int i = 0; i < SLOT_NUM; i++)
         {
             if (mapStr[i] != "0" && mapStr[i] == itemID)
                 return i;
@@ -368,5 +371,15 @@ public class CraftingPanelController : BaseController<CraftingPanelController> {
     protected override void RemoveEventListener()
     {
         EventManager.Instance.RemoveListener(EventName.BreakMaterials, this.BreakMaterialsEvent);
+    }
+
+    public void UIPanelShow()
+    {
+        base.OnShow();
+    }
+
+    public void UIPanelHide()
+    {
+        base.OnHide();
     }
 }
