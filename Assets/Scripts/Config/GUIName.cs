@@ -1,4 +1,4 @@
-﻿// 定义所有ui名字
+﻿/// 定义所有ui名字
 public sealed class GUIName {
 
     // Crafting

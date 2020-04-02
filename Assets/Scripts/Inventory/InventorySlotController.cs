@@ -6,14 +6,7 @@ using UnityEngine;
 public class InventorySlotController : MonoBehaviour {
 
     private int index = -1;
-    private Transform m_Transform;
-
     private InventoryItemController item = null;
-
-    void Start ()
-    {
-        m_Transform = this.GetComponent<Transform>();
-    }
 
     public void InitData(int index)
     {

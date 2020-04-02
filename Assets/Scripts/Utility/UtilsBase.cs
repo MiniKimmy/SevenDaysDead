@@ -6,6 +6,7 @@ using System;
 
 public sealed class UtilsBase {
 
+    #region debug相关
     public static bool IsDebug = true; // debug模式
 
     public static void ddd(object args1 = null, object args2 = null, object args3 = null, object args4 = null, object args5 = null)
@@ -17,24 +18,26 @@ public sealed class UtilsBase {
     private static void ddd(params object[] args)
     {
         string format = "";
-        int n = args.Length;
         int cnt = 0;
-        for (int i = 0; i < n; i++)
+        int n = args.Length;
+        for (int i = 0; i < n; i ++)
         {
-            if (args[i] != null) cnt++;
+            if (args[i] != null) cnt ++;
             else break;
             format += "{" + i + "}, ";
         }
 
         if (cnt == 0) Debug.Log("");
-        else if (cnt == 1) Debug.Log(string.Format(format, args[0]));
-        else if (cnt == 2) Debug.Log(string.Format(format, args[0], args[1]));
-        else if (cnt == 3) Debug.Log(string.Format(format, args[0], args[1], args[2]));
-        else if (cnt == 4) Debug.Log(string.Format(format, args[0], args[1], args[2], args[3]));
-        else if (cnt == 5) Debug.Log(string.Format(format, args[0], args[1], args[2], args[3], args[4]));
-        else Debug.Log("too long ==== " + cnt);
+        else if (cnt == 1) Debug.LogFormat(format, args[0]);
+        else if (cnt == 2) Debug.LogFormat(format, args[0], args[1]);
+        else if (cnt == 3) Debug.LogFormat(format, args[0], args[1], args[2]);
+        else if (cnt == 4) Debug.LogFormat(format, args[0], args[1], args[2], args[3]);
+        else if (cnt == 5) Debug.LogFormat(format, args[0], args[1], args[2], args[3], args[4]);
+        else Debug.LogWarningFormat("too long ====: parrms_cnt = {0}", cnt);
     }
+    #endregion
 
+    #region resources相关
     // fileName -》加载文件夹所有的sprite
     public static Dictionary<string, Sprite> LoadFolderAllSprites(string fileName)
     {
@@ -56,23 +59,33 @@ public sealed class UtilsBase {
         return res;
     }
 
-    // json文件名 -》 获取List<T>
-    public static List<T> GetJsonList<T>(string fileName)
+    // 创建obj
+    public static T Clone<T>(GameObject go, Transform parent = null)
     {
-        List<T> res = new List<T>();
-
-        string jsonStr = Resources.Load<TextAsset>("JsonData/" + fileName).text;
-        JsonData jsonData = JsonMapper.ToObject(jsonStr);
-
-        for (int i = 0; i < jsonData.Count; i++)
-        {
-            var item = JsonMapper.ToObject<T>(jsonData[i].ToJson());
-            res.Add(item);
-        }
-
-        return res;
+        return GameObject.Instantiate<GameObject>(go, parent).GetComponent<T>();
     }
 
+    // 创建obj
+    public static T Clone<T>(GameObject go, Vector3 v3, Quaternion quaternion)
+    {
+        return GameObject.Instantiate<GameObject>(go, v3, quaternion).GetComponent<T>(); ;
+    }
+
+    // 播放音效
+    public static void PlaySound(AudioClip audio_clip, Vector3 pos)
+    {
+        AudioSource.PlayClipAtPoint(audio_clip, pos);
+    }
+
+    // 播放特效
+    public static GameObject PlayEffect(GameObject effect, Vector3 pos, Quaternion quaternion)
+    {
+        return GameObject.Instantiate<GameObject>(effect, pos, quaternion);
+    }
+
+    #endregion
+
+    #region event system相关
     // 触发事件:UtilsBase.FireInnerEvent(eventVo, args)
     public static void FireInnerEvent(EventVo evt, params object[] args)
     {
@@ -100,14 +113,9 @@ public sealed class UtilsBase {
         else evt = new EventVo();
         evt.Add(func);
     }
+    #endregion
 
-    // 克隆obj
-    public static T Clone<T>(GameObject go, Transform parent)
-    {
-        var res = GameObject.Instantiate<GameObject>(go, parent).GetComponent<T>();
-        return res;
-    }
-    
+    #region color相关
     // 修改文本颜色
     public static string Color(string color, string str)
     {
@@ -121,11 +129,28 @@ public sealed class UtilsBase {
         ColorUtility.TryParseHtmlString(string.Format("#{0}", color), out res);
         return res;
     }
+    #endregion
 
-    // 中文规范化 tmp
+    // json文件名 -》 获取List<T>
+    public static List<T> GetJsonList<T>(string fileName)
+    {
+        List<T> res = new List<T>();
+
+        string jsonStr = Resources.Load<TextAsset>("JsonData/" + fileName).text;
+        JsonData jsonData = JsonMapper.ToObject(jsonStr);
+
+        for (int i = 0; i < jsonData.Count; i++)
+        {
+            var item = JsonMapper.ToObject<T>(jsonData[i].ToJson());
+            res.Add(item);
+        }
+
+        return res;
+    }
+
+    // 中文规范化 TODO
     public static string T18N(string str)
     {
         return str;
     }
-
 }

@@ -14,7 +14,7 @@ public class CameraManager : MonoBehaviour {
         }
     }
 
-    private Transform canvasUITran = null;
+    private Transform canvasUITran;
     public Transform CanvasUITran
     {
         get {

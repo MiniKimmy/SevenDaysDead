@@ -117,6 +117,7 @@ public class BaseController<T> : MonoBehaviour where T : MonoBehaviour
                         go = Resources.Load<GameObject>(autoAttribute.resPath);
                         if (null != go) {
                             go = GameObject.Instantiate(go, CameraManager.Instance.CanvasUITran);
+                            go.SetActive(false);
                         } else {
                             Debug.LogErrorFormat("[Singleton]类型【{0}】ResPath设置的路径不对【{1}】", _type.Name, autoAttribute.resPath);
                             return (T)((object)null);
