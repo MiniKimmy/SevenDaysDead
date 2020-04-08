@@ -15,7 +15,10 @@ public abstract class WeaponBaseView : BaseView {
     // 枪口位置
     public Transform GunPointTran { get; protected set; }
 
-    // 动作
+    // 弹壳位置
+    public Transform ShellPointTran { get; protected set; }
+
+    // 动作ani
     private Animator m_Animator;
     public Animator Animator { get { return m_Animator; } }
 
@@ -34,6 +37,13 @@ public abstract class WeaponBaseView : BaseView {
         evn_Camera = GameObject.Find("EnvCamera").GetComponent<Camera>();
         m_GunStarTran = CameraManager.Instance.CanvasUITran.Find("MainPanel/GunStar");
         m_Animator = this.Transform.GetComponent<Animator>();
+
+        // obj
+        this.InitAssetDict(new[]
+        {
+            GAssetName.WeaponBullet,
+            GAssetName.WeaponShell,
+        });
     }
 
     protected void InitAudioDict(string[] assetNames)

@@ -13,20 +13,18 @@ public class AssaultRifleController : WeaponBaseController {
         //weaponType = WeaponEnum.AssaultRifle;
     }
     
+    // 点击左键
     protected override void OnLeftMouseBtnDown()
     {
         base.OnLeftMouseBtnDown();
         this.PlaySound(GAssetName.AssaultRifleFireAudio, this.m_AssaultRifleView.GunPointTran.position);
-        this.PlayEffect(GAssetName.AssaultRifleFireEfect, this.m_AssaultRifleView.GunPointTran.position, EffectEnum.particalSys);
-
-        var prefab = this.m_AssaultRifleView.GetPrefabByDict(GAssetName.WeaponShell);
-        var v3 = this.m_AssaultRifleView.ShellPointTran.position;
-        UtilsBase.Clone<Rigidbody>(prefab, v3, Quaternion.identity).AddForce(this.m_AssaultRifleView.ShellPointTran.up * 50); // 50力度
+        this.PlayEffect(GAssetName.AssaultRifleFireEffect, this.m_AssaultRifleView.GunPointTran.position, EffectEnum.particalSys);
+        this.PlayShellTween();
     }
 
+    // 射击
     protected override void Shoot()
     {
-        //Debug.Log("开始射击");
         if(this.Hit.point != Vector3.zero)
         {
             var prefab = this.m_AssaultRifleView.GetPrefabByDict(GAssetName.WeaponBullet);
@@ -38,8 +36,19 @@ public class AssaultRifleController : WeaponBaseController {
             }
             else
             {
-                GameObject.Instantiate<GameObject>(prefab, this.Hit.point, Quaternion.identity);
+                var obj = GameObject.Instantiate<GameObject>(prefab, this.Hit.point, Quaternion.identity);
+                StartCoroutine(DelayDestoryObj(obj)); // tmp
             }
         }
+    }
+
+    // 播放弹壳动画
+    private void PlayShellTween()
+    {
+        var prefab = this.m_AssaultRifleView.GetPrefabByDict(GAssetName.WeaponShell);
+        var v3 = this.m_AssaultRifleView.ShellPointTran.position;
+        var rigid = UtilsBase.Clone<Rigidbody>(prefab, v3, Quaternion.identity);
+        rigid.AddForce(this.m_AssaultRifleView.ShellPointTran.up * 50); // 50力度
+        StartCoroutine(DelayDestoryObj(rigid.gameObject)); // tmp
     }
 }

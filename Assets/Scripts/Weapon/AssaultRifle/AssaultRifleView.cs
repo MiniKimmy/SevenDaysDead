@@ -4,22 +4,17 @@ using UnityEngine;
 
 public class AssaultRifleView : WeaponBaseView {
 
-    private Transform m_ShellPointTran;  // 弹夹位置
-    public Transform ShellPointTran { get { return m_ShellPointTran; } }
-
     public override void Awake ()
     {
         base.Awake();
 
-        GunPointTran = this.Transform.Find("Assault_Rifle/Effect_PosA");
-        m_ShellPointTran = this.Transform.Find("Assault_Rifle/Effect_PosB");
+        this.GunPointTran = this.Transform.Find("Assault_Rifle/Effect_PosA");
+        this.ShellPointTran = this.Transform.Find("Assault_Rifle/Effect_PosB");
 
         // obj
         this.InitAssetDict(new[]
         {
-            GAssetName.WeaponBullet,
-            GAssetName.AssaultRifleFireEfect,
-            GAssetName.WeaponShell,
+            GAssetName.AssaultRifleFireEffect,
         });
 
         // audio

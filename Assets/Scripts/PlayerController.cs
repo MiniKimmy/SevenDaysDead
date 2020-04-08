@@ -6,14 +6,14 @@ public class PlayerController : MonoBehaviour {
 
     private Transform m_Transform;
 
+    // 预加载所有武器.
     private GameObject m_Building_Plan;
     private GameObject m_WoodenSpear;
 
-
     [SerializeField] private GameObject currentWeapon;
-    //[SerializeField] private GameObject targetWeapon = null;
 
-    void Start () {
+    void Start ()
+    {
         m_Transform = this.GetComponent<Transform>();
         m_Building_Plan = m_Transform.Find("PlayerCamera/Building Plan").gameObject;
         m_WoodenSpear = m_Transform.Find("PlayerCamera/Wooden Spear").gameObject;

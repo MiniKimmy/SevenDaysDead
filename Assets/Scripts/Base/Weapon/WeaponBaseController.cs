@@ -70,9 +70,11 @@ public abstract class WeaponBaseController : MonoBehaviour {
             case EffectEnum.particalSys:
                 ParticleSystem particleSystem = UtilsBase.Clone<ParticleSystem>(prefab, pos, Quaternion.identity);
                 particleSystem.Play();
+                StartCoroutine(DelayDestoryObj(particleSystem.gameObject));
                 break;
             case EffectEnum.obj:
                 GameObject obj = GameObject.Instantiate<GameObject>(prefab, pos, Quaternion.identity);
+                StartCoroutine(DelayDestoryObj(obj));
                 break;
             default: break;
         }
@@ -97,5 +99,11 @@ public abstract class WeaponBaseController : MonoBehaviour {
         //Debug.Log("抬起右键");
         this.View.Animator.SetBool("HoldPose", false);
         this.View.ExitHoldPost();
+    }
+
+    protected IEnumerator DelayDestoryObj(GameObject go, float time = 5f)
+    {
+        yield return new WaitForSeconds(time);
+        GameObject.Destroy(go);
     }
 }
