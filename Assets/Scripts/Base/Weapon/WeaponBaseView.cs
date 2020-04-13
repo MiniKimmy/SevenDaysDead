@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using System;
 
 public abstract class WeaponBaseView : BaseView {
 
@@ -30,36 +31,64 @@ public abstract class WeaponBaseView : BaseView {
 
     protected Dictionary<string, AudioClip> audios_clip = null; // audio
 
-    public override void Awake()
+    protected override void Awake()
     {
         base.Awake();
-
         evn_Camera = GameObject.Find("EnvCamera").GetComponent<Camera>();
         m_GunStarTran = CameraManager.Instance.CanvasUITran.Find("MainPanel/GunStar");
         m_Animator = this.Transform.GetComponent<Animator>();
+        InitAssetDict();
+    }
 
-        // obj
-        this.InitAssetDict(new[]
+    // obj资源
+    protected void InitAssetDict()
+    {
+        // 默认资源
+        var defaultAssets = new[]
         {
             GAssetName.WeaponBullet,
             GAssetName.WeaponShell,
-        });
+        };
+ 
+        var func = this.InitAssetsFunc();
+        if (func != null)
+        {
+            defaultAssets = func(defaultAssets);
+        }
+ 
+        base.InitAssetDict(defaultAssets);
     }
 
+    // audio资源
     protected void InitAudioDict(string[] assetNames)
     {
-        if (audios_clip != null)
+        if (this.audios_clip == null)
         {
-            UtilsBase.ddd("[InitAudioDict]方法仅允许调用1次初始化");
-            return;
+            this.audios_clip = new Dictionary<string, AudioClip>();
         }
 
-        this.audios_clip = new Dictionary<string, AudioClip>();
         for (int i = 0; i < assetNames.Length; i ++)
         {
             string name = assetNames[i];
+            if (string.IsNullOrEmpty(name))
+            {
+                Debug.LogErrorFormat("【InitAudioDict】传入name是空字符串!!");
+                return;
+            }
+
+            if (this.audios_clip.ContainsKey(name))
+            {
+                UtilsBase.ddd("【InitAudioDict】重复添加资源", name, "检查是否使用重复的GAssetName");
+                continue;
+            }
+
             this.audios_clip.Add(name, Resources.Load<AudioClip>(name));
         }
+    }
+
+    // obj资源(自定义资源)
+    protected virtual Func<string[], string[]> InitAssetsFunc() {
+        return null; // 第一个参数会传入defaultAssets, 自行取舍, TOutput是最终的obj资源
     }
 
     // assetName:定义在 GAssetName.cs

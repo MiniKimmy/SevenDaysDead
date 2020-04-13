@@ -10,23 +10,33 @@ public abstract class BaseView : MonoBehaviour {
 
     protected Dictionary<string, GameObject> prefabs_Obj = null; // 预制体, effect
 
-    public virtual void Awake()
+    protected virtual void Awake()
     {
         m_Transform = this.GetComponent<Transform>();
     }
 
     protected void InitAssetDict(string[] assetNames)
     {
-        if (prefabs_Obj != null)
+        if (this.prefabs_Obj == null)
         {
-            UtilsBase.ddd("[InitAssetDict]方法仅允许调用1次初始化");
-            return;
+            this.prefabs_Obj = new Dictionary<string, GameObject>();
         }
 
-        this.prefabs_Obj = new Dictionary<string, GameObject>();
         for (int i = 0; i < assetNames.Length; i ++)
         {
             string name = assetNames[i];
+            if(string.IsNullOrEmpty(name))
+            {
+                Debug.LogErrorFormat("【InitAssetDict】传入name是空字符串!!");
+                return;
+            }
+
+            if (this.prefabs_Obj.ContainsKey(name))
+            {
+                UtilsBase.ddd("【InitAssetDict】重复添加资源", name, "检查是否使用重复的GAssetName");
+                continue;
+            }
+
             this.prefabs_Obj.Add(name, Resources.Load<GameObject>(name));
         }
     }

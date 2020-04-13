@@ -4,10 +4,12 @@ public sealed class GAssetName {
     // Audio
     public const string AssaultRifleFireAudio = "Audios/Weapon/AssaultRifle_Fire";
     public const string ShotgunFireAudio      = "Audios/Weapon/Shotgun_Fire";
+    public const string ShotgunPumpAudio      = "Audios/Weapon/Shotgun_Pump";
 
     // Weapon
     public const string WeaponBullet          = "Weapon/Bullet";
     public const string WeaponShell           = "Weapon/Shell";
+    public const string WeaponShotGunShell    = "Weapon/Shotgun_Shell";
 
     // 场景Effect
     public const string AssaultRifleFireEffect = "Effects/Weapon/AssaultRifle_GunPoint_Effect";

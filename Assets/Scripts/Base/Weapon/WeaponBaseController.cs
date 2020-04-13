@@ -13,6 +13,8 @@ public abstract class WeaponBaseController : MonoBehaviour {
     private RaycastHit m_hit;
     public RaycastHit Hit { get { return this.m_hit; } }
 
+    private bool canFire = true;
+
     public virtual void Start ()
     {
         m_BaseView = this.GetComponent<WeaponBaseView>();
@@ -21,7 +23,7 @@ public abstract class WeaponBaseController : MonoBehaviour {
 	public virtual void Update ()
     {
         this.ShootReady();
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && canFire)
         {
             this.OnLeftMouseBtnDown();
         }
@@ -105,5 +107,11 @@ public abstract class WeaponBaseController : MonoBehaviour {
     {
         yield return new WaitForSeconds(time);
         GameObject.Destroy(go);
+    }
+
+    // 支持动画控制单次射击的间隔
+    private void PlayFireAni(int ok)
+    {
+        this.canFire = ok == 1;
     }
 }

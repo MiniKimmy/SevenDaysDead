@@ -4,7 +4,7 @@ public enum WeaponEnum  {
     AssaultRifle, // 步枪
     HuntingRifle, // 
     Revolver,     // 
-    Shotgun,      // 狙击枪
+    Shotgun,      // 散弹枪
     WoodenBow,    // 弓箭
 }
 

@@ -17,7 +17,7 @@ public class CraftingPanelView : BaseView {
     public Dictionary<string, Sprite> TabIconDic { get { return tabIconDic; } }
     public Dictionary<string, Sprite> MaterialIconDic { get { return materialIconDic; } }
 
-    public override void Awake()
+    protected override void Awake()
     {
         base.Awake();
 
