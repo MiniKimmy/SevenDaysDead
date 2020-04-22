@@ -25,7 +25,8 @@ public abstract class BaseView : MonoBehaviour {
         for (int i = 0; i < assetNames.Length; i ++)
         {
             string name = assetNames[i];
-            if(string.IsNullOrEmpty(name))
+#if UNITY_EDITOR
+            if (string.IsNullOrEmpty(name))
             {
                 Debug.LogErrorFormat("【InitAssetDict】传入name是空字符串!!");
                 return;
@@ -36,7 +37,7 @@ public abstract class BaseView : MonoBehaviour {
                 UtilsBase.ddd("【InitAssetDict】重复添加资源", name, "检查是否使用重复的GAssetName");
                 continue;
             }
-
+#endif
             this.prefabs_Obj.Add(name, Resources.Load<GameObject>(name));
         }
     }

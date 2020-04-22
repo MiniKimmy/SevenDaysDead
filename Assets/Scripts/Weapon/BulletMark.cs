@@ -32,7 +32,9 @@ public class BulletMark : MonoBehaviour {
                 this.effect = Resources.Load<GameObject>(GAssetName.BulletMarkEffect_Flesh);
                 return Resources.Load<Texture2D>(root + "Bullet Decal_Flesh");
             default:
+#if UNITY_EDITOR
                 UtilsBase.ddd("当前obj的Inspector面板未设置好[BulletMarkEnum]");
+#endif
                 break;
         }
 

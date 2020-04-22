@@ -22,7 +22,7 @@ public class ShotgunView : WeaponBaseView {
         this.StPos = m_Transform.localPosition;
         this.StRot = m_Transform.eulerAngles;
         this.EdPos = new Vector3(-0.14f, -1.78f, -0.03f);
-        this.EdRot = new Vector3(0, 10, 0);
+        this.EdRot = new Vector3(0, 10, -0.25f);
     }
 
     // obj资源
@@ -34,6 +34,7 @@ public class ShotgunView : WeaponBaseView {
             {
                 GAssetName.ShotgunFireEffect,
                 GAssetName.WeaponShotGunShell,
+                GAssetName.WeaponShotGunBullet,
             };
         };
     }

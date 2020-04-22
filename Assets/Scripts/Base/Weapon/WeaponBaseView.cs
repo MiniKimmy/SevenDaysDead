@@ -70,6 +70,7 @@ public abstract class WeaponBaseView : BaseView {
         for (int i = 0; i < assetNames.Length; i ++)
         {
             string name = assetNames[i];
+#if UNITY_EDITOR
             if (string.IsNullOrEmpty(name))
             {
                 Debug.LogErrorFormat("【InitAudioDict】传入name是空字符串!!");
@@ -81,7 +82,7 @@ public abstract class WeaponBaseView : BaseView {
                 UtilsBase.ddd("【InitAudioDict】重复添加资源", name, "检查是否使用重复的GAssetName");
                 continue;
             }
-
+#endif
             this.audios_clip.Add(name, Resources.Load<AudioClip>(name));
         }
     }
@@ -95,7 +96,9 @@ public abstract class WeaponBaseView : BaseView {
     public AudioClip GetAudioByDict(string assetName)
     {
         AudioClip res = UtilsBase.ByNameGetAsset<AudioClip>(assetName, audios_clip);
+#if UNITY_EDITOR
         if (res == null) UtilsBase.ddd("请检查是否添加过该资源到【InitAudioDict】方法中", assetName);
+#endif
         return res;
     }
 

@@ -11,8 +11,8 @@ public enum WeaponEnum  {
 ///  弹痕类型
 public enum BulletMarkEnum
 {
-    Wood,  // 木头
-    Stone, // 石头
-    Metal, // 金属
-    Flesh, // 血液
+    Wood,         // 木头
+    Stone,        // 石头
+    Metal,        // 金属
+    Flesh,        // 血液
 }

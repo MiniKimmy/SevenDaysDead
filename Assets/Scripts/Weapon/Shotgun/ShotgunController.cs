@@ -15,11 +15,20 @@ public class ShotgunController : WeaponBaseController
     // 射击
     protected override void Shoot()
     {
+        StartCoroutine("CreateBullet");
+    }
+
+    IEnumerator CreateBullet()
+    {
         for (int i = 0; i < 5; i++)
         {
-            var prefab = this.m_ShotgunView.GetPrefabByDict(GAssetName.WeaponBullet);
+            var prefab = this.m_ShotgunView.GetPrefabByDict(GAssetName.WeaponShotGunBullet);
+            var bullet = GameObject.Instantiate<GameObject>(prefab, this.m_ShotgunView.GunPointTran.position, Quaternion.identity).GetComponent<ShotgunBullet>();
 
-            //GameObject.Instantiate<GameObject>(prefab, this.Hit.point, Quaternion.identity);
+            var offset = new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), 0);
+            bullet.Shoot(this.m_ShotgunView.GunPointTran.forward + offset, 3000f); // 发射方向随机范围±0.05之间
+            DelayDestoryObj(bullet.gameObject);
+            yield return new WaitForSeconds(0.03f);
         }
     }
 

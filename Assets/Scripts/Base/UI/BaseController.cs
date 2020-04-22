@@ -84,7 +84,9 @@ public class BaseController<T> : MonoBehaviour where T : MonoBehaviour
         {
             Type _type = typeof(T);
             if (_destroyed) {
+#if UNITY_EDITOR
                 Debug.LogWarningFormat("[Singleton]【{0}】已被标记为销毁，返 Null！", _type.Name);
+#endif
                 return (T)((object)null);
             }
 
@@ -94,7 +96,9 @@ public class BaseController<T> : MonoBehaviour where T : MonoBehaviour
 
                 _instance = (T)FindObjectOfType(_type);
                 if (FindObjectsOfType(_type).Length > 1) {
+#if UNITY_EDITOR
                     Debug.LogErrorFormat("[Singleton]类型【{0}】存在多个实例.", _type.Name);
+#endif
                     return _instance;
                 }
 
@@ -103,7 +107,9 @@ public class BaseController<T> : MonoBehaviour where T : MonoBehaviour
                     AutoSingletonAttribute autoAttribute = (customAttributes.Length > 0) ? (AutoSingletonAttribute)customAttributes[0] : null;
                     if (null == autoAttribute || !autoAttribute.autoCreate)
                     {
+#if UNITY_EDITOR
                         Debug.LogWarningFormat("[Singleton]欲访问单例【{0}】不存在且设置了非自动创建~", _type.Name);
+#endif
                         return (T)((object)null);
                     }
 
@@ -119,12 +125,16 @@ public class BaseController<T> : MonoBehaviour where T : MonoBehaviour
                             go = GameObject.Instantiate(go, CameraManager.Instance.CanvasUITran);
                             go.SetActive(false);
                         } else {
+#if UNITY_EDITOR
                             Debug.LogErrorFormat("[Singleton]类型【{0}】ResPath设置的路径不对【{1}】", _type.Name, autoAttribute.resPath);
+#endif
                             return (T)((object)null);
                         }
                         _instance = go.GetComponent<T>();
                         if (null == _instance) {
+#if UNITY_EDITOR
                             Debug.LogErrorFormat("[Singleton]指定预制体未挂载该脚本【{0}】，ResPath【{1}】", _type.Name, autoAttribute.resPath);
+#endif
                         }
                     }
                 }
